@@ -22,5 +22,5 @@
   ]},
   {registered, []},
   {mod, {webmachine_app, []}},
-  {env, []},
+  {env, [{webmachine_logger_module, webmachine_logger}]},
   {applications, [kernel, stdlib, crypto, mochiweb]}]}.

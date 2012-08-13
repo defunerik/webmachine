@@ -7,6 +7,19 @@
 -author('author <author@example.com>').
 -export([start/0, start_link/0, stop/0]).
 
+-define(DEPS, [inets, % builtin
+	       crypto, % builtin
+	       public_key, % for ssl
+	       xmerl, % for ssl
+	       ssl, % for mochiweb
+	       compiler, % for mochiweb
+	       syntax_tools, % for mochiweb
+	       mochiweb, % builtin
+	       webmachine %builtin
+	       %% DEVELOPERS - put your dependencies here. Don't forget the comma after
+	       %% the previous item (webmachine)
+	       ]).
+
 ensure_started(App) ->
     case application:start(App) of
         ok ->
@@ -15,34 +28,28 @@ ensure_started(App) ->
             ok
     end.
 
+start_dependencies() ->
+    lists:foreach(fun (Dep) -> ensure_started(Dep) end, ?DEPS).
+
+stop_dependencies() ->
+    lists:foreach(fun (Dep) -> application:stop(Dep) end, lists:reverse(?DEPS)).
+
+
 %% @spec start_link() -> {ok,Pid::pid()}
 %% @doc Starts the app for inclusion in a supervisor tree
 start_link() ->
-    ensure_started(inets),
-    ensure_started(crypto),
-    ensure_started(mochiweb),
-    application:set_env(webmachine, webmachine_logger_module, 
-                        webmachine_logger),
-    ensure_started(webmachine),
+    start_dependencies(),
     {{appid}}_sup:start_link().
 
 %% @spec start() -> ok
 %% @doc Start the {{appid}} server.
 start() ->
-    ensure_started(inets),
-    ensure_started(crypto),
-    ensure_started(mochiweb),
-    application:set_env(webmachine, webmachine_logger_module, 
-                        webmachine_logger),
-    ensure_started(webmachine),
+    start_dependencies(),
     application:start({{appid}}).
 
 %% @spec stop() -> ok
 %% @doc Stop the {{appid}} server.
 stop() ->
     Res = application:stop({{appid}}),
-    application:stop(webmachine),
-    application:stop(mochiweb),
-    application:stop(crypto),
-    application:stop(inets),
+    stop_dependencies(),
     Res.
