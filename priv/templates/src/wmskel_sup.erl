@@ -45,9 +45,19 @@ init([]) ->
     {ok, App} = application:get_application(?MODULE),
     {ok, Dispatch} = file:consult(filename:join([code:priv_dir(App),
                                                  "dispatch.conf"])),
+    Ip = case application:get_env(App, webmachine_ip) of
+	     undefined -> "0.0.0.0"; 
+	     {ok, AnyIp} -> AnyIp
+	 end,
+   
+    Port = case application:get_env(App, webmachine_port) of
+	       undefined-> 8000; 
+	       {ok, AnyPort} -> AnyPort
+	   end,
+
     WebConfig = [
                  {ip, Ip},
-                 {port, 8000},
+                 {port, Port},
                  {log_dir, "priv/log"},
                  {dispatch, Dispatch}],
     Web = {webmachine_mochiweb,
