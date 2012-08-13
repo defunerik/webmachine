@@ -14,5 +14,7 @@
                   webmachine
                  ]},
   {mod, { {{appid}}_app, []}},
-  {env, []}
+  %% DEVELOPER - You'll want to change at least the port setting below.
+  {env, [{webmachine_ip, "0.0.0.0"},
+	 {webmachine_port, 8888}]}
  ]}.
